@@ -1,19 +1,22 @@
 component {
 
-	TransportConfiguration = createObject("java","org.hornetq.api.core.TransportConfiguration");
-	FileConfiguration = createObject("java","org.hornetq.core.config.impl.FileConfiguration");
-	NettyAcceptorFactory = createObject("java","org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory");
-	TransportConstants = createObject("java","org.hornetq.core.remoting.impl.netty.TransportConstants");
-	HornetQServer = createObject("java","org.hornetq.core.server.HornetQServer");
-	JMSServerManager = createObject("java","org.hornetq.jms.server.JMSServerManager");
-	JMSServerManagerImpl = createObject("java","org.hornetq.jms.server.impl.JMSServerManagerImpl");
-	ConfigurationImpl = createObject("java","org.hornetq.core.config.impl.ConfigurationImpl");
-	InVMAcceptorFactory = createObject("java","org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory");
-	InVMConnectorFactory = createObject("java","org.hornetq.core.remoting.impl.invm.InVMConnectorFactory");
-	ServerLocator = createObject("java","org.hornetq.api.core.client.ServerLocator");
-	HornetQClient = createObject("java","org.hornetq.api.core.client.HornetQClient");
-	HornetQServers = createObject("java","org.hornetq.core.server.HornetQServers");
-	System = createObject("java","java.lang.System");
+	thisDir = getDirectoryFromPath(getMetaData(this).path);
+  	cl = new LibraryLoader(thisDir & "/../lib/").init();
+	jThread = cl.create("java.lang.Thread");
+	TransportConfiguration = cl.create("org.hornetq.api.core.TransportConfiguration");
+	FileConfiguration = cl.create("org.hornetq.core.config.impl.FileConfiguration");
+	NettyAcceptorFactory = cl.create("org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory");
+	TransportConstants = cl.create("org.hornetq.core.remoting.impl.netty.TransportConstants");
+	HornetQServer = cl.create("org.hornetq.core.server.HornetQServer");
+	JMSServerManager = cl.create("org.hornetq.jms.server.JMSServerManager");
+	JMSServerManagerImpl = cl.create("org.hornetq.jms.server.impl.JMSServerManagerImpl");
+	ConfigurationImpl = cl.create("org.hornetq.core.config.impl.ConfigurationImpl");
+	InVMAcceptorFactory = cl.create("org.hornetq.core.remoting.impl.invm.InVMAcceptorFactory");
+	InVMConnectorFactory = cl.create("org.hornetq.core.remoting.impl.invm.InVMConnectorFactory");
+	ServerLocator = cl.create("org.hornetq.api.core.client.ServerLocator");
+	HornetQClient = cl.create("org.hornetq.api.core.client.HornetQClient");
+	HornetQServers = cl.create("org.hornetq.core.server.HornetQServers");
+	System = cl.create("java.lang.System");
 	// temporary hack to simply store cf stuff
 	CFOBJECT_PROP = "cf.object.property";
 
@@ -21,12 +24,12 @@ component {
 		return this;
 	}
 
-	function stop() {
+	function _stop() {
 	    variables.sf.close();
 	    variables.hqserver.stop();
 	}
 
-	function start() {
+	function _start() {
 		if(!structKeyExists(server,"__hornetq_server") || !server["__hornetq_server"].isStarted()) {
 			var configuration = ConfigurationImpl.init();
 			configuration.setPersistenceEnabled(false);
@@ -40,13 +43,13 @@ component {
 		variables.sf = serverLocator.createSessionFactory();
 	}
 
-	function createQueue(queueName="queue.exampleQueue") {
+	function _createQueue(queueName="queue.exampleQueue") {
 		var corehqsession = sf.createSession(false, false, false);
 		corehqsession.createQueue(queueName, queueName, true);
 		corehqsession.close();
 	}
 
-	function sendMessage(queueName = "queue.exampleQueue", message) {
+	function _sendMessage(queueName = "queue.exampleQueue", message) {
 		var hqsession = "";
 		try {
 			hqsession = sf.createSession();
@@ -63,7 +66,7 @@ component {
 		}
 	}
 
-	function receiveMessage(queueName = "queue.exampleQueue",timeout=1000) {
+	function _receiveMessage(queueName = "queue.exampleQueue",timeout=1000) {
 		var hqsession = "";
 		try {
 			var hqsession = sf.createSession();
@@ -91,7 +94,7 @@ component {
 		}
 	}
 
-	function startJMSServer() {
+	function _startJMSServer() {
 
 	    var configuration = FileConfiguration.init();
 
@@ -99,7 +102,7 @@ component {
 	    configuration.start();
 
 	    // Change acceptor configuration
-	    var acceptorParams = createObject("java","java.util.HashMap");
+	    var acceptorParams = cl.create("java.util.HashMap");
 	    acceptorParams.put(TransportConstants.PORT_PROP_NAME, "5446");
 	    acceptorParams.put(TransportConstants.HOST_PROP_NAME, "0.0.0.0");
 	    configuration.getAcceptorConfigurations().clear();
@@ -107,7 +110,7 @@ component {
 
 
 	    // Change connector configuration
-	    var connectorParams = createObject("java","java.util.HashMap");
+	    var connectorParams = cl.create("java.util.HashMap");
 	    connectorParams.put(TransportConstants.PORT_PROP_NAME, "5446");
 	    connectorParams.put(TransportConstants.HOST_PROP_NAME, "0.0.0.0");
 	    configuration.getConnectorConfigurations().clear();
@@ -127,5 +130,43 @@ component {
 	    jmsServerManager.start();
 	    jmsServerManager.stop();
 	}
+
+
+	/**
+	 * Access point for this component.  Used for thread context loader wrapping.
+	 **/
+
+	function onMissingMethod(missingMethodName,missingMethodArguments){
+		return callMethod("_"&missingMethodName,missingMethodArguments);
+	}
+
+	function callMethod(methodName, args) {
+		jThread = cl.create("java.lang.Thread");
+		cTL = jThread.currentThread().getContextClassLoader();
+		//system.out.println(server.coldfusion.productname);
+		if(findNoCase("railo",server.coldfusion.productname)) {
+			jThread.currentThread().setContextClassLoader(cl.GETLOADER().getURLClassLoader());
+		}
+//		var tl = cl.create("com.googlecode.transloader.Transloader").DEFAULT;
+//		var er = cl.create("org.jivesoftware.util.log.util.CommonsLogFactory");
+//		var wee = tl.wrap(er.getClass());
+
+		variables.switchThreadContextClassLoader = cl.getLoader().switchThreadContextClassLoader;
+		return switchThreadContextClassLoader(this.runInThreadContext,arguments,cl.getLoader().getURLClassLoader());
+    }
+	function runInThreadContext(methodName,  args) {
+		try{
+			var theMethod = this[methodName];
+			return theMethod(argumentCollection=args);
+		} catch (any e) {
+			try{
+				stopServer();
+			} catch(any err) {}
+			jThread.currentThread().setContextClassLoader(cTL);
+			throw(e);
+		}
+		jThread.currentThread().setContextClassLoader(cTL);
+	}
+
 
 }

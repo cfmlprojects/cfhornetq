@@ -17,6 +17,7 @@ component {
 
 	public void function start() {
 		writelog(text = "Starting hornetq queue #variables.config.queue#", type = "information", file = "hornetq");
+		sys = createObject("java","java.lang.System");
 		try {
 			variables.state = "starting";
 			hornetq.start();
@@ -24,7 +25,6 @@ component {
 			state = "running";
 			hornetq.createQueue(queue);
 			while (state eq 'running') {
-				createObject("java","java.lang.System").out.println("HELLOS");
 				// 0 timeout listens forever, prolly miss shutdown/etc?
 				var message = variables.hornetq.receiveMessage(queue,200);
 				if(isStruct(message)) {

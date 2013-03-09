@@ -1,7 +1,7 @@
 <cfcomponent extends="Gateway">
 
     <cfset fields=array(
-		field("Server Port","port","10125",true,"Port of the websocket server","text"),
+		field("Server Port","port","10125",true,"Port of the horneq server","text"),
 		field("Verbose","verbose","false",true,"Enable verbose logging","radio","true,false"),
 		group("CFC Listener Function Defintion","Definitation for the CFC Listener Functions, when empty no listener is called",3),
 		field("ClientOpen","onClientOpen","onClientOpen",false,"called when a client open a connection","text"),

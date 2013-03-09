@@ -8,9 +8,26 @@ component name="TestHornetQGateway" extends="mxunit.framework.TestCase" {
 		hornetq = new cfhornetq.gateway.HornetQ();
 		hornetq.start();
 		hornetq.createQueue("testQueue");
+
 		hornetq.sendMessage("testQueue",{funk:"weoooho",bort:"yerp"});
-		debug(hornetq.receiveMessage("testQueue",1));
-		debug(hornetq.receiveMessage("testQueue",1));
+		var gotMessage = hornetq.receiveMessage("testQueue",1);
+		debug(gotMessage);
+		assertTrue(structKeyExists(gotMessage,"bort"));
+		assertEquals(gotMessage.bort,"yerp");
+		assertEquals(gotMessage.funk,"weoooho");
+
+		// this message should be false, as the first was consumed
+		gotMessage = hornetq.receiveMessage("testQueue",1);
+		debug(gotMessage);
+		assertFalse(gotMessage);
+
+		hornetq.sendMessage("testQueue",{woohoo:"yaydoggy!",status:"awesome"});
+		var gotMessage = hornetq.receiveMessage("testQueue",1);
+		debug(gotMessage);
+		assertTrue(structKeyExists(gotMessage,"woohoo"));
+		assertEquals(gotMessage.woohoo,"yaydoggy!");
+		assertEquals(gotMessage.status,"awesome");
+
 		hornetq.stop();
 	}
 
