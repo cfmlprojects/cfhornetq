@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<mappings>
+<!--
+  <mapping physical="@src.dir@/cfdistro" virtual="/cfdistro"/>
+ -->
+<mapping physical="@src.dir@/cfhornetq" virtual="/cfhornetq"/>
+<mapping physical="./../tests" virtual="/tests"/>
+<mapping physical="@ext.mappings.dir@/org.mxunit/core/2.1.3/mxunit" virtual="/mxunit"/>
+</mappings>

@@ -1,0 +1,79 @@
+<configuration xmlns="urn:hornetq"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:hornetq /schema/hornetq-configuration.xsd">
+
+   <paging-directory>data/paging</paging-directory>   
+   <bindings-directory>data/bindings</bindings-directory>   
+   <journal-directory>data/journal</journal-directory>   
+   <journal-min-files>10</journal-min-files>   
+   <large-messages-directory>data/large-messages</large-messages-directory>   
+   <connectors>
+      <connector name="netty">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyConnectorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:0.0.0.0}"/>
+         <param key="port"  value="${hornetq.remoting.netty.port:5444}"/>
+      </connector>
+   </connectors>
+
+   <acceptors>
+      <acceptor name="netty">
+         <factory-class>org.hornetq.core.remoting.impl.netty.NettyAcceptorFactory</factory-class>
+         <param key="host"  value="${hornetq.remoting.netty.host:0.0.0.0}"/>
+         <param key="port"  value="${hornetq.remoting.netty.port:5446}"/>
+      </acceptor>
+   </acceptors>
+
+   <!-- Clustering configuration -->
+
+   <broadcast-groups>
+      <broadcast-group name="my-broadcast-group">
+         <group-address>127.0.0.1</group-address> <!-- 231.7.7.7  -->
+         <group-port>5442</group-port> <!-- 9876 -->
+         <broadcast-period>100</broadcast-period>
+         <connector-ref>netty-connector</connector-ref>
+      </broadcast-group>
+   </broadcast-groups>
+
+   <discovery-groups>
+      <discovery-group name="my-discovery-group">
+         <group-address>127.0.0.1</group-address> <!-- 231.7.7.7  -->
+         <group-port>5442</group-port>  <!-- 9876 -->
+         <refresh-timeout>10000</refresh-timeout>
+      </discovery-group>
+   </discovery-groups>
+
+   <cluster-connections>
+      <cluster-connection name="my-cluster">
+         <address>jms</address>
+         <connector-ref>netty-connector</connector-ref>
+         <retry-interval>500</retry-interval>
+         <use-duplicate-detection>true</use-duplicate-detection>
+         <forward-when-no-consumers>true</forward-when-no-consumers>
+         <max-hops>1</max-hops>
+         <discovery-group-ref discovery-group-name="my-discovery-group"/>
+      </cluster-connection>
+   </cluster-connections>
+
+   <security-settings>
+      <security-setting match="#">
+         <permission type="createNonDurableQueue" roles="guest"/>
+         <permission type="deleteNonDurableQueue" roles="guest"/>
+         <permission type="consume" roles="guest"/>
+         <permission type="send" roles="guest"/>
+      </security-setting>
+   </security-settings>
+
+   <address-settings>
+      <!--default for catch all-->
+      <address-setting match="#">
+         <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+         <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+         <redelivery-delay>0</redelivery-delay>
+         <page-size-bytes>10485760</page-size-bytes>
+         <max-size-bytes>209715200</max-size-bytes>       
+         <message-counter-history-day-limit>10</message-counter-history-day-limit>
+         <address-full-policy>PAGE</address-full-policy>
+      </address-setting>
+   </address-settings>
+
+</configuration>

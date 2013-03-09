@@ -1,0 +1,4 @@
+component {
+	public function onMessage() {
+	}
+}
