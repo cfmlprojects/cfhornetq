@@ -1,7 +1,7 @@
 component {
 
 	thisDir = getDirectoryFromPath(getMetaData(this).path);
-  	cl = new LibraryLoader(thisDir & "/../lib/").init();
+  	cl = new LibraryLoader(thisDir & "lib/").init();
 	jThread = cl.create("java.lang.Thread");
 	TransportConfiguration = cl.create("org.hornetq.api.core.TransportConfiguration");
 	FileConfiguration = cl.create("org.hornetq.core.config.impl.FileConfiguration");
