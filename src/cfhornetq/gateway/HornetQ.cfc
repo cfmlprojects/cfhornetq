@@ -26,6 +26,7 @@ component {
 
 	function _stop() {
 	    variables.sf.close();
+	    variables.serverLocator.close();
 	    variables.hqserver.stop();
 	}
 
@@ -39,7 +40,7 @@ component {
 			server["__hornetq_server"].start();
 		}
 		variables.hqserver = server["__hornetq_server"];
-		var serverLocator = HornetQClient.createServerLocatorWithoutHA([TransportConfiguration.init(InVMConnectorFactory.class.getName())]);
+		variables.serverLocator = HornetQClient.createServerLocatorWithoutHA([TransportConfiguration.init(InVMConnectorFactory.class.getName())]);
 		variables.sf = serverLocator.createSessionFactory();
 	}
 
@@ -72,12 +73,15 @@ component {
 			var hqsession = sf.createSession();
 			var messageConsumer = hqsession.createConsumer(queueName);
 			var messageReceived = "";
+			var started = getTickCount();
 			hqsession.start();
+			//request.debug("polltime: #timeout#");
 			if(timeout > 0) {
 				messageReceived = messageConsumer.receive(timeout);
 			} else {
 				messageReceived = messageConsumer.receive();
 			}
+			//request.debug("receive took " & getTickCount() - started & "ms");
 			if(!isNull(messageReceived)) {
 				var cfObject = evaluate(messageReceived.getObjectProperty(CFOBJECT_PROP).toString());
 				messageReceived.acknowledge();
