@@ -1,14 +1,12 @@
 @echo off
 set CFDISTRO_HOME=%userprofile%\cfdistro
-if not exist "%CFDISTRO_HOME%\cfdistro.zip" (
-  set CFDISTRO_HOME=%userprofile%\cfdistro
-)
 set FILE_URL="http://cfmlprojects.org/artifacts/cfdistro/latest/cfdistro.zip"
 set FILE_DEST="%CFDISTRO_HOME%\cfdistro.zip"
 set buildfile=build/build.xml
 set ANT_HOME=%CFDISTRO_HOME%\ant
 if not exist "%CFDISTRO_HOME%" (
-  echo Downloading with powershell: %FILE_URL% to %FILE_URL%
+  echo Downloading with powershell: %FILE_URL% to %FILE_DEST%
+  mkdir %userprofile%\cfdistro
   powershell.exe -command "$webclient = New-Object System.Net.WebClient; $url = \"%FILE_URL%\"; $file = \"%FILE_DEST%\"; $webclient.DownloadFile($url,$file);"
   echo Expanding with powershell to: %CFDISTRO_HOME%
   powershell -command "$shell_app=new-object -com shell.application; $zip_file = $shell_app.namespace(\"%FILE_DEST%\"); $destination = $shell_app.namespace(\"%CFDISTRO_HOME%\"); $destination.Copyhere($zip_file.items())"
