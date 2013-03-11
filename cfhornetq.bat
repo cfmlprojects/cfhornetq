@@ -5,7 +5,8 @@ if not exist "%CFDISTRO_HOME%\cfdistro.zip" (
 )
 set FILE_URL="http://cfmlprojects.org/artifacts/cfdistro/latest/cfdistro.zip"
 set FILE_DEST="%CFDISTRO_HOME%\cfdistro.zip"
-rem set ANT_HOME="%CFDISTRO_HOME%\ant"
+set buildfile=build/build.xml
+set ANT_HOME=%CFDISTRO_HOME%\ant
 if not exist "%CFDISTRO_HOME%" (
   echo Downloading with powershell: %FILE_URL% to %FILE_URL%
   powershell.exe -command "$webclient = New-Object System.Net.WebClient; $url = \"%FILE_URL%\"; $file = \"%FILE_DEST%\"; $webclient.DownloadFile($url,$file);"
@@ -18,18 +19,18 @@ if "%1" == "" goto MENU
 set args=%1
 SHIFT
 :Loop
-IF "%1"=="" GOTO Continue
+IF "%1" == "" GOTO Continue
 SET args=%args% -D%1%
 SHIFT
-IF "%1"=="" GOTO Continue
+IF "%1" == "" GOTO Continue
 SET args=%args%=%1%
 SHIFT
 GOTO Loop
 :Continue
 if not exist %buildfile% (
-	set buildfile="%CFDISTRO_HOME%\..\build.xml"
+	set buildfile="%CFDISTRO_HOME%\build.xml"
 )
-call %ANT_HOME%\bin\ant.bat -nouserlib -f %buildfile% %args%
+call "%ANT_HOME%\bin\ant.bat" -nouserlib -f %buildfile% %args%
 goto end
 :MENU
 cls
