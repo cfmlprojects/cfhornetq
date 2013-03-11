@@ -1,17 +1,35 @@
 @echo off
-set ANT_HOME=%CD%\build\cfdistro\ant\
+set CFDISTRO_HOME=%userprofile%\cfdistro
+if not exist "%CFDISTRO_HOME%\cfdistro.zip" (
+  set CFDISTRO_HOME=%userprofile%\cfdistro
+)
+set FILE_URL="http://cfmlprojects.org/artifacts/cfdistro/latest/cfdistro.zip"
+set FILE_DEST="%CFDISTRO_HOME%\cfdistro.zip"
+rem set ANT_HOME="%CFDISTRO_HOME%\ant"
+if not exist "%CFDISTRO_HOME%" (
+  echo Downloading with powershell: %FILE_URL% to %FILE_URL%
+  powershell.exe -command "$webclient = New-Object System.Net.WebClient; $url = \"%FILE_URL%\"; $file = \"%FILE_DEST%\"; $webclient.DownloadFile($url,$file);"
+  echo Expanding with powershell to: %CFDISTRO_HOME%
+  powershell -command "$shell_app=new-object -com shell.application; $zip_file = $shell_app.namespace(\"%FILE_DEST%\"); $destination = $shell_app.namespace(\"%CFDISTRO_HOME%\"); $destination.Copyhere($zip_file.items())"
+) else (
+  echo "cfdistro.zip already downloaded, delete to re-download"
+)
 if "%1" == "" goto MENU
-set var1=%1
+set args=%1
 SHIFT
 :Loop
 IF "%1"=="" GOTO Continue
-SET var1=%var1% -D%1%
+SET args=%args% -D%1%
 SHIFT
-SET var1=%var1%=%1%
+IF "%1"=="" GOTO Continue
+SET args=%args%=%1%
 SHIFT
 GOTO Loop
 :Continue
-call build\cfdistro\ant\bin\ant.bat -nouserlib -f build/build.xml %var1%
+if not exist %buildfile% (
+	set buildfile="%CFDISTRO_HOME%\..\build.xml"
+)
+call %ANT_HOME%\bin\ant.bat -nouserlib -f %buildfile% %args%
 goto end
 :MENU
 cls
