@@ -4,6 +4,7 @@ set FILE_URL="http://cfmlprojects.org/artifacts/cfdistro/latest/cfdistro.zip"
 set FILE_DEST="%CFDISTRO_HOME%\cfdistro.zip"
 set buildfile=build/build.xml
 set ANT_HOME=%CFDISTRO_HOME%\ant
+set ANT_CMD=%CFDISTRO_HOME%\ant\bin\ant.bat
 if not exist "%CFDISTRO_HOME%" (
   mkdir "%CFDISTRO_HOME%"
 )
@@ -30,7 +31,7 @@ GOTO Loop
 if not exist %buildfile% (
 	set buildfile="%CFDISTRO_HOME%\build.xml"
 )
-call "%ANT_HOME%\bin\ant.bat" -nouserlib -f %buildfile% %args%
+call "%ANT_CMD" -nouserlib -f %buildfile% %args%
 goto end
 :MENU
 cls
@@ -65,22 +66,22 @@ goto MENU
 ::
 :startServer
 cls
-call build\cfdistro\ant\bin\ant.bat -f build/build.xml build.start.launch
+call "%ANT_CMD" -nouserlib -f build/build.xml build.start.launch
 echo to stop the server, run this again or run: cfhornetq.bat stop
 goto end
 ::
 :stopServer
-call build\cfdistro\ant\bin\ant.bat -f build/build.xml server.stop
+call "%ANT_CMD" -nouserlib -f build/build.xml server.stop
 goto end
 ::
 :listTargets
-call build\cfdistro\ant\bin\ant.bat -f build/build.xml help
+call "%ANT_CMD" -nouserlib -f build/build.xml help
 echo       press any key ...
 pause > nul
 goto MENU
 ::
 :updateProject
-call build\cfdistro\ant\bin\ant.bat -f build/build.xml project.update
+call "%ANT_CMD" -nouserlib -f build/build.xml project.update
 echo       press any key ...
 pause > nul
 goto MENU
@@ -88,7 +89,7 @@ goto MENU
 :runTarget
 set target=
 set /p target=      Enter target name:
-if not '%target%'=='' call build\cfdistro\ant\bin\ant.bat -f build/build.xml %target%
+if not '%target%'=='' call "%ANT_CMD" -nouserlib -f build/build.xml %target%
 echo       press any key ...
 pause > nul
 goto MENU
