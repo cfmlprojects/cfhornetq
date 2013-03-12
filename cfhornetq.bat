@@ -89,7 +89,7 @@ goto MENU
 :runTarget
 set target=
 set /p target=      Enter target name:
-if not '%target%'=='' call "%ANT_CMD%" -nouserlib -f build/build.xml %target%
+if not "%target%"=="" call "%0" %target%
 echo       press any key ...
 pause > nul
 goto MENU
