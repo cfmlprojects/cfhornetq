@@ -31,7 +31,7 @@ GOTO Loop
 if not exist %buildfile% (
 	set buildfile="%CFDISTRO_HOME%\build.xml"
 )
-call "%ANT_CMD" -nouserlib -f %buildfile% %args%
+call "%ANT_CMD%" -nouserlib -f %buildfile% %args%
 goto end
 :MENU
 cls
@@ -66,22 +66,22 @@ goto MENU
 ::
 :startServer
 cls
-call "%ANT_CMD" -nouserlib -f build/build.xml build.start.launch
+call "%ANT_CMD%" -nouserlib -f build/build.xml build.start.launch
 echo to stop the server, run this again or run: cfhornetq.bat stop
 goto end
 ::
 :stopServer
-call "%ANT_CMD" -nouserlib -f build/build.xml server.stop
+call "%ANT_CMD%" -nouserlib -f build/build.xml server.stop
 goto end
 ::
 :listTargets
-call "%ANT_CMD" -nouserlib -f build/build.xml help
+call "%ANT_CMD%" -nouserlib -f build/build.xml help
 echo       press any key ...
 pause > nul
 goto MENU
 ::
 :updateProject
-call "%ANT_CMD" -nouserlib -f build/build.xml project.update
+call "%ANT_CMD%" -nouserlib -f build/build.xml project.update
 echo       press any key ...
 pause > nul
 goto MENU
@@ -89,7 +89,7 @@ goto MENU
 :runTarget
 set target=
 set /p target=      Enter target name:
-if not '%target%'=='' call "%ANT_CMD" -nouserlib -f build/build.xml %target%
+if not '%target%'=='' call "%ANT_CMD%" -nouserlib -f build/build.xml %target%
 echo       press any key ...
 pause > nul
 goto MENU
